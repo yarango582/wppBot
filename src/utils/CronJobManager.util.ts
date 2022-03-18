@@ -15,7 +15,7 @@ export class CronJobManager {
             instance = new Manager(
                 PrincipalCronName,
                 SchedulingMain,
-                () => { console.log('CronJob Principal iniciado!') },
+                () => {  },
                 { start: true }
             )
             return instance;
@@ -53,7 +53,7 @@ export class CronJobManager {
     }
 
     listCrons(): string {
-        return this.cronManager.listCrons();
+        return JSON.parse(this.cronManager.listCrons());
     }
 
     isExistingJob(key: string): boolean {

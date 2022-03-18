@@ -7,13 +7,14 @@ import { TaskRepository } from "./tasks.repository";
 export class MailManRepository extends Repository<MailMan> {
     private contact: ContactsRepository;
     private tasks: TaskRepository;
-    private jobs: any[];
+    private jobs: any[] = [];
 
     async getDeliveries() {
         return await this.find({ where: { active: true } });
     }
 
     async getJobtoExecuted(documentIdContact: string, nameTask: string) {
+        this.jobs.length = 0;
         const contact = await this.getContact(documentIdContact);
         const task = await this.getTask(nameTask);
         this.jobs.push({

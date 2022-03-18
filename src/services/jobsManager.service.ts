@@ -1,25 +1,48 @@
 import { MailManService } from "./mailMan.service";
 import { CronManagerService } from "./cronManager.service";
-import { WppBot } from "../bot/wppBot";
 import { Service } from "typedi";
-import { Client } from "whatsapp-web.js";
+import { ManagerTasksBot } from "../bot/tasks/manager.task.bot";
 
+import {
+    GetJobsCronName,
+    SchedulingGetJobs
+} from "../constants/cronManager/cronScheduling.constant";
+import { IJobs } from "../interfaces/IJobs.interface";
 
 @Service()
 export class JobsManagerService {
 
-    private wppBot: WppBot;
-    private clientWpp: Client;
+    private jobs: IJobs[] = [];
 
     constructor(
         private readonly mailManService: MailManService,
-        private readonly cronManagerService: CronManagerService
-    ) {
-        this.wppBot = new WppBot();
-        this.clientWpp = this.wppBot.init();
+        private readonly cronManagerService: CronManagerService,
+        private readonly managerTasksBot: ManagerTasksBot
+    ) { }
+
+    async main() {
+        this.addingJobUpdateJobsToExecute()
+            .catch((err) => console.error(err));
     }
 
-    main() {
-        console.log('estamos funcionando correctamente!');
+    async addingJobUpdateJobsToExecute() {
+        this.cronManagerService.addingJob(
+            GetJobsCronName,
+            SchedulingGetJobs,
+            async () => {
+                const jobs: IJobs[] = await this.getJobs();
+                this.jobs.length = 0;
+                this.jobs.push(...jobs);
+                if (this.jobs.length > 0) {
+                    this.managerTasksBot.sendMessage(this.jobs)
+                        .catch((err) => err);
+                }
+            },
+        )
     }
+
+    async getJobs(): Promise<IJobs[]> {
+        return await this.mailManService.getJobs();
+    }
+
 }

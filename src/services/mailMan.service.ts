@@ -7,7 +7,7 @@ import { MailMan } from "../models/mailman.model";
 export class MailManService {
 
     private deliveries: MailMan[] = [];
-    private jobs: any[];
+    private jobs: any[] = [];
 
     constructor(
         @InjectRepository() private mailManRepository: MailManRepository
@@ -18,12 +18,13 @@ export class MailManService {
         await this.getDeliveries();
         for await (const delivery of this.deliveries) {
             this.jobs.push(
-                ... await this.mailManRepository.getJobtoExecuted(
+                ...await this.mailManRepository.getJobtoExecuted(
                     delivery.documentIdContact,
                     delivery.nameTask
                 )
             )
         }
+        return this.jobs;
     }
 
     private async getDeliveries() {

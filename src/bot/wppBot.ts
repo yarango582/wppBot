@@ -2,10 +2,12 @@ import fs from "fs";
 import { PATH_SESSION_FILE } from "../constants/index";
 import { Client, ClientSession, LegacySessionAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
+import { Service } from "typedi";
 
-
+@Service("WppBot")
 export class WppBot {
     private intance: Client;
+
     init() {
         return (fs.existsSync(PATH_SESSION_FILE)) ? this.withSession() : this.withOutSession();
     }
@@ -16,7 +18,6 @@ export class WppBot {
             session: sessionData
         });
         client.on('ready', () => {
-            console.log("Sesion restaurada correctamente");
             this.intance = client;
         });
 
@@ -24,11 +25,11 @@ export class WppBot {
             console.error('Error al restaurar la sesion: ' + msg);
         });
         client.initialize();
-        return this.intance;
+        return client;
     }
 
     withOutSession() {
-        console.log("No hay una sesion guardada!");
+        console.warn("No hay una sesion guardada!");
         const client = new Client({
             authStrategy: new LegacySessionAuth()
         });
@@ -43,7 +44,7 @@ export class WppBot {
             });
         });
         client.initialize();
-        return this.intance;
+        return client;
     }
 
 }

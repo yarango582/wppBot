@@ -38,9 +38,9 @@ export class CronManagerService {
     async addingJob(
         key: string,
         cronExpression: string,
-        _function: () => void,
+        _function: () => void
     ): Promise<void> {
-        return this.cronJobManager.add(key, cronExpression, _function, {});
+        return this.cronJobManager.add(key, cronExpression, _function, { start: true });
     }
 
     async startJob(key: string): Promise<string | boolean> {
